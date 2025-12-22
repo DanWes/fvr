@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fvr"
+dynamic = ["version"]
+description = "Various tools"
+license = "MIT"
+license-files = ["LICEN[CS]E.*"]
+authors = [
+  { name = "Daniel Weschke", email = "daniel.weschke@directbox.de" },
+]
+keywords = [
+  "mechanics", "materials",
+]
+readme = "README.md"
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
+  "Intended Audience :: End Users/Desktop",
+  "Intended Audience :: Science/Research",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Topic :: Office/Business",
+  "Topic :: Scientific/Engineering",
+  "Typing :: Typed",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "fvr.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["fvr*"]
+# namespaces = false
