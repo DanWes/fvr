@@ -10,18 +10,20 @@ class awg:
       number: AWG wire size, also '00', '000', '0000'
     """
     self.number = number
-    self.num2int()
+    self._number = self.num2int(number)
 
-  def num2int(self):
-    if isinstance(self.number, int):
-      self._number = self.number
-    elif self.number.isdigit():
-      if self.number in ['00', '000', '0000']:
-        self._number = 1 - len(self.number)
+  @staticmethod
+  def num2int(number: int|str):
+    if isinstance(number, int):
+      res = number
+    elif number.isdigit():
+      if number in ['00', '000', '0000']:
+        res = 1 - len(number)
       else:
-        self._number = int(self.number)
+        res = int(number)
     else:
-      raise ValueError
+      raise ValueError(f"{number} is not a number.")
+    return res
 
   @property
   def diameter(self):
