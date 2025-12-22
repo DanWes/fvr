@@ -2,6 +2,9 @@ from fvr.typing import FloatArray
 
 def area(vertices: FloatArray) -> float:
   r"""Determine the area of a simple polygon.
+
+  Args:
+    vertices: List of points, pair of x and y: "[[x1, y1], [x2, y2], ...]"
   
   Shoelace formula, Gauss's area formula, surveyor's formula
 
