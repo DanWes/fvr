@@ -1,9 +1,7 @@
 * Installation
-python -m pip install . --break-system-packages
-# or in 'development mode'
-python -m pip install -e . --break-system-packages
-# or inside a virtual environment using e.g. poetry
-poetry install
+
+python -m pip install .
 
 * Uninstallation
-python -m pip uninstall fvr --break-system-packages
+
+python -m pip uninstall fvr

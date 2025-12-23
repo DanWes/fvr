@@ -28,6 +28,9 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Typing :: Typed",
 ]
+dependencies = [
+  "numpy",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "fvr.__version__"}
