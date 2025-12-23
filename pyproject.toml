@@ -31,6 +31,24 @@ classifiers = [
 dependencies = [
   "numpy",
 ]
+[project.optional-dependencies]
+docs = ["sphinx", "furo"]
+test = ["pytest"]
+dev = [
+  # recursive optional dependencies
+  "fvr[docs,test]",
+  # Useful for building quick scripts, https://github.com/google/python-fire
+  "fire",
+  # Code quality tools
+  "mypy",
+  # # Improved exception traceback output
+  # # https://github.com/qix-/better-exceptions
+  # "better_exceptions",
+  # # Analyzing dependencies
+  # # install graphviz to generate graphs
+  # "graphviz",
+  # "pipdeptree",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "fvr.__version__"}

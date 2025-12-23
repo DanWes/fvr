@@ -2,12 +2,13 @@ import re
 from fvr.typing import FloatArray
 
 class polygon:
-  def __init__(self, vertices: FloatArray|str):
-    r"""Properties of a simple polygon.
+  r"""Properties of a simple polygon.
 
-    Args:
-      vertices: List of points, pair of x and y: "[[x1, y1], [x2, y2], ...]"
-    """
+  Args:
+    vertices: List of points, pair of x and y: "[[x1, y1], [x2, y2], ...]"
+  """
+
+  def __init__(self, vertices: FloatArray|str):
     if isinstance(vertices, str):
       vertices = self.str2arr(vertices)
     self.vertices = vertices

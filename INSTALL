@@ -2,6 +2,9 @@
 
 python -m pip install .
 
+Development dependencies
+python -m pip install -e '.[dev]'
+
 * Uninstallation
 
 python -m pip uninstall fvr

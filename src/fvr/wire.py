@@ -1,14 +1,12 @@
 import math
 
 class awg:
-  """AWG wire.
+  """Parameters of an AWG wire.
+
+  Args:
+    number: AWG wire size, also '00', '000', '0000'
   """
   def __init__(self, number: int|str):
-    """Determine parameters for a given AWG wire size.
-
-    Args:
-      number: AWG wire size, also '00', '000', '0000'
-    """
     self.number = number
     self._number = self.num2int(number)
 
@@ -27,12 +25,12 @@ class awg:
 
   @property
   def diameter(self):
-    """The diameter for a given AWG wire size in mm"""
+    """The diameter of the AWG wire, mm"""
     return 0.127 * 92**((36-self._number)/39)
 
   @property
   def area(self):
-    """The area for a given AWG wire size in mm²"""
+    """The area of the AWG wire, mm²"""
     return math.pi/4*self.diameter**2
 
   def __str__(self):
