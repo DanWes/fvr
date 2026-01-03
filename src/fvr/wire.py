@@ -2,11 +2,12 @@ import math
 
 class awg:
   """Parameters of an AWG wire.
-
-  Args:
-    number: AWG wire size, also '00', '000', '0000'
   """
   def __init__(self, number: int|str):
+    """
+    Args:
+      number: AWG wire size, also '00', '000', '0000'
+    """
     self.number = number
     self._number = self.num2int(number)
 

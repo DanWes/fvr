@@ -3,8 +3,10 @@ Welcome to fvr's documentation!
 ===============================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 4
+   :titlesonly:
+
+   api/fvr
 
 
 Indices and tables
