@@ -105,3 +105,88 @@ class beam:
     a_nLopi = [0.596864, 1.49418, 2.50025, 3.49999]
     a_n = a_nLopi[n-1]*math.pi/self.L if n < len(a_nLopi) else 0
     return a_n**2*math.sqrt(self.E*self.I/self.mu)/(2*math.pi)
+
+class tube:
+  r"""\
+  Long thin circular tube uniformly loaded with external pressure.
+
+  Elemental ring of unit width (h)
+
+  IMPORTANT: Can be used as long as the corresponding compressive stress does
+  not exeed the proportional limit of the material.
+
+  :math:`I = \frac{h^3}{12}`
+
+  References:
+    - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
+      Stability. 2nd ed. New York: McGraw-Hill Book. ch. 7.
+
+  """
+
+  def __init__(self, r, h, E, nu):
+    """\
+    Args:
+      r: mean radius (r_a + r_i)/2
+      h: thickness
+      E: Young's modulus
+      nu: Poisson's ratio
+    """
+    self.r = r
+    self.h = h
+    self.E = E
+    self.nu = nu
+
+  def critical_buckling_force(self):
+    r"""Critical buckling value of the compressive force.
+
+    A long circular tube uniformly compressed by external pressure.
+
+    .. math::
+
+      f_{cr} = \frac{E h^3}{4 \, (1 - \nu^2) \, r^2}
+
+    References:
+      - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
+        Stability. 2nd ed. New York: McGraw-Hill Book. p. 289.
+
+    """
+    return (self.E * self.h**3) / (4 * (1 - self.nu**2) * self.r**2)
+
+  def critical_buckling_pressure(self):
+    r"""Critical buckling value of the compressive pressure.
+
+    A long circular tube uniformly compressed by external pressure.
+
+    .. math::
+
+      q_{cr} = f_{cr}/r
+
+    .. math::
+
+      q_{cr} = \frac{E}{4 \, (1 - \nu^2)} \left(\frac{h}{r}\right)^3
+
+    References:
+      - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
+        Stability. 2nd ed. New York: McGraw-Hill Book. p. 289.
+
+    """
+    return self.E / (4 * (1 - self.nu**2)) * (self.h / self.r)**3
+
+  def critical_buckling_stress(self):
+    r"""Critical buckling stress of a long thin circular tube uniformly
+    compressed by pressure.
+
+    .. math::
+
+      \sigma_{cr} = f_{cr}/h
+
+    .. math::
+
+      \sigma_{cr} = \frac{E}{1 - \nu^2} \left(\frac{h}{2r}\right)^2
+
+    References:
+      - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
+        Stability. 2nd ed. New York: McGraw-Hill Book. p. 293.
+
+    """
+    return self.E / (1 - self.nu**2) * (self.h / (2 * self.r))**2
