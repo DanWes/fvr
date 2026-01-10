@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-import numpy as np
-from numpy.typing import NDArray
+import numpy.typing
 
-type FloatArray = Sequence[float] | NDArray[np.float64]
+type FloatArray = Sequence[float] | numpy.typing.NDArray[numpy.float64]

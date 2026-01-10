@@ -1,7 +1,3 @@
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "fvr"
 dynamic = ["version"]
@@ -34,7 +30,7 @@ dependencies = [
 
 [project.optional-dependencies]
 docs = ["sphinx", "furo"]
-test = ["pytest"]
+test = ["pytest>=9.0"]
 dev = [
   # recursive optional dependencies
   "fvr[docs,test]",
@@ -51,6 +47,10 @@ dev = [
   # "pipdeptree",
 ]
 
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
 [tool.setuptools.dynamic]
 version = {attr = "fvr.__version__"}
 
@@ -58,3 +58,15 @@ version = {attr = "fvr.__version__"}
 where = ["src"]
 include = ["fvr*"]
 # namespaces = false
+
+[tool.pytest]
+addopts = ["--doctest-modules", "--doctest-continue-on-failure"]
+testpaths = [
+  "tests",
+  "src/fvr",
+]
+filterwarnings = [
+  # "ignore::DeprecationWarning",
+  # in ezdxf/queryparser.py
+  "ignore:'.*' deprecated - use '.*':DeprecationWarning",
+]

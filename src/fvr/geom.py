@@ -25,8 +25,10 @@ class polygon:
     r"""Determine the area of a simple polygon.
 
     Example:
-      >>> fvr.geom.polygon([[0, 0], [0, 1], [1, 1], [1, 0]]).area
-      >>> fvr.geom.polygon('[[0, 0], [0, 1], [1, 1], [1, 0]]').area
+      >>> polygon([[0, 0], [0, 1], [1, 1], [1, 0]]).area
+      1.0
+      >>> polygon('[[0, 0], [0, 1], [1, 1], [1, 0]]').area
+      1.0
 
     Shoelace formula, Gauss's area formula, surveyor's formula
 
