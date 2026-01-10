@@ -1,4 +1,6 @@
-import math
+"""Structure :py:class:`beam` and :py:class:`tube` objects.
+"""
+import numpy as np
 
 class beam:
   """Euler-Bernoulli beam.
@@ -19,16 +21,16 @@ class beam:
     self.rho = rho
 
   @property
-  def V():
+  def V(self):
     return self.A * self.L
 
   @property
-  def mu():
+  def mu(self):
     """Mass per unit length (or the product of density and cross-section)"""
     return self.rho * self.A
 
   @property
-  def m():
+  def m(self):
     return self.mu * self.L
     # return self.rho * self.V
 
@@ -103,12 +105,11 @@ class beam:
 
     """
     a_nLopi = [0.596864, 1.49418, 2.50025, 3.49999]
-    a_n = a_nLopi[n-1]*math.pi/self.L if n < len(a_nLopi) else 0
-    return a_n**2*math.sqrt(self.E*self.I/self.mu)/(2*math.pi)
+    a_n = a_nLopi[n-1]*np.pi/self.L if n < len(a_nLopi) else 0
+    return a_n**2*np.sqrt(self.E*self.I/self.mu)/(2*np.pi)
 
 class tube:
-  r"""\
-  Long thin circular tube uniformly loaded with external pressure.
+  r"""Long thin circular tube uniformly loaded with external pressure.
 
   Elemental ring of unit width (h)
 
@@ -123,27 +124,31 @@ class tube:
 
   """
 
-  def __init__(self, r, h, E, nu):
-    """\
+  def __init__(self, E, nu, r, *, h=None, q=None, s=None):
+    r"""
     Args:
-      r: mean radius (r_a + r_i)/2
-      h: thickness
       E: Young's modulus
       nu: Poisson's ratio
+      r: mean radius (:math:`r_\text{a}` + :math:`r_\text{i}`)/2
+      h: thickness
+      s: internal stress
+      q: external pressure
     """
-    self.r = r
-    self.h = h
     self.E = E
     self.nu = nu
+    self.r = r
+    self.h = h
+    self.s = s
+    self.q = q
 
-  def critical_buckling_force(self):
+  def buckling_force(self):
     r"""Critical buckling value of the compressive force.
 
     A long circular tube uniformly compressed by external pressure.
 
     .. math::
 
-      f_{cr} = \frac{E h^3}{4 \, (1 - \nu^2) \, r^2}
+      f_\text{cr} = \frac{E h^3}{4 \, (1 - \nu^2) \, r^2}
 
     References:
       - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
@@ -152,18 +157,18 @@ class tube:
     """
     return (self.E * self.h**3) / (4 * (1 - self.nu**2) * self.r**2)
 
-  def critical_buckling_pressure(self):
+  def buckling_pressure(self):
     r"""Critical buckling value of the compressive pressure.
 
     A long circular tube uniformly compressed by external pressure.
 
     .. math::
 
-      q_{cr} = f_{cr}/r
+      q_\text{cr} = f_\text{cr}/r
 
     .. math::
 
-      q_{cr} = \frac{E}{4 \, (1 - \nu^2)} \left(\frac{h}{r}\right)^3
+      q_\text{cr} = \frac{E}{4 \, (1 - \nu^2)} \left(\frac{h}{r}\right)^3
 
     References:
       - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
@@ -172,17 +177,17 @@ class tube:
     """
     return self.E / (4 * (1 - self.nu**2)) * (self.h / self.r)**3
 
-  def critical_buckling_stress(self):
+  def buckling_stress(self):
     r"""Critical buckling stress of a long thin circular tube uniformly
     compressed by pressure.
 
     .. math::
 
-      \sigma_{cr} = f_{cr}/h
+      \sigma_\text{cr} = f_\text{cr}/h
 
     .. math::
 
-      \sigma_{cr} = \frac{E}{1 - \nu^2} \left(\frac{h}{2r}\right)^2
+      \sigma_\text{cr} = \frac{E}{1 - \nu^2} \left(\frac{h}{2r}\right)^2
 
     References:
       - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
@@ -190,3 +195,35 @@ class tube:
 
     """
     return self.E / (1 - self.nu**2) * (self.h / (2 * self.r))**2
+
+  def buckling_thickness(self) -> float|None:
+    r"""Critical buckling thickness of a long thin circular tube uniformly
+    compressed by external pressure.
+
+    Returns:
+      - Thickness regarding the internal stress, if stress is given
+
+        .. math::
+
+          h_{\text{cr,}\sigma} = \sqrt{\sigma_\text{cr} \frac{1 - \nu^2}{E}} {2r}
+
+      - Thickness regarding the external pressure, if pressure is given
+
+        .. math::
+
+          h_\text{cr,q} = \left(q_\text{cr} \, 4 \frac{1 - \nu^2}{E}\right)^\frac{1}{3} {r}
+
+      - Otherwise given thickness or None
+
+    References:
+      - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
+        Stability. 2nd ed. New York: McGraw-Hill Book. p. 293.
+
+    """
+    if self.scr is not None:
+      return np.sqrt(self.s * (1 - self.nu**2) / self.E) * (2 * self.r)
+    if self.qcr is not None:
+      return np.power(self.q * 4 * (1 - self.nu**2) / self.E, 1/3) * self.r
+    if self.h is not None:
+      return self.h
+    return None
