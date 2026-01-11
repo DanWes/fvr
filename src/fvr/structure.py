@@ -1,18 +1,23 @@
-"""Structure :py:class:`beam` and :py:class:`tube` objects.
+"""Structure :py:class:`Beam` and :py:class:`Tube` objects.
 """
 import numpy as np
 
-class beam:
-  """Euler-Bernoulli beam.
+class Beam:
+  r"""Euler-Bernoulli beam.
   """
-  def __init__(self, E, I, A, L, rho):
-    """
+
+  def __init__(self, E: float, I: float, A: float, L: float, rho: float):
+    r"""
     Args:
       E: Elastic modulus / Young's modulus
       I: Second moment of area of the beam's cross-section
       A: Cross-section
       L: Length
       rho: Density
+
+    .. math::
+
+      I = \frac{h^3}{12}
     """
     self.E = E
     self.I = I
@@ -21,20 +26,20 @@ class beam:
     self.rho = rho
 
   @property
-  def V(self):
+  def V(self) -> float:
     return self.A * self.L
 
   @property
-  def mu(self):
+  def mu(self) -> float:
     """Mass per unit length (or the product of density and cross-section)"""
     return self.rho * self.A
 
   @property
-  def m(self):
+  def m(self) -> float:
     return self.mu * self.L
     # return self.rho * self.V
 
-  def eigenfrequency(self, n:int, support : str = 'fixed-free') -> float:
+  def eigenfrequency(self, n: int, support: str = 'fixed-free') -> float:
     r"""Natural frequencies of the beam.
 
     Args:
@@ -104,19 +109,18 @@ class beam:
       f_n = \frac{a_n^2}{2\pi}\sqrt{\frac{E\,I}{\mu}}
 
     """
-    a_nLopi = [0.596864, 1.49418, 2.50025, 3.49999]
-    a_n = a_nLopi[n-1]*np.pi/self.L if n < len(a_nLopi) else 0
-    return a_n**2*np.sqrt(self.E*self.I/self.mu)/(2*np.pi)
+    a2_n = [0.596864, 1.49418, 2.50025, 3.49999]  # a_n*L/pi
+    a_n = a2_n[n - 1] * np.pi / self.L if n < len(a2_n) else 0
+    return a_n**2 * np.sqrt(self.E * self.I / self.mu) / (2 * np.pi)
 
-class tube:
+class TubeBuckling:
   r"""Long thin circular tube uniformly loaded with external pressure.
 
   Elemental ring of unit width (h)
 
-  IMPORTANT: Can be used as long as the corresponding compressive stress does
-  not exeed the proportional limit of the material.
-
-  :math:`I = \frac{h^3}{12}`
+  Important:
+    Can be used as long as the corresponding compressive stress does not exeed
+    the proportional limit of the material.
 
   References:
     - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
@@ -124,7 +128,9 @@ class tube:
 
   """
 
-  def __init__(self, E, nu, r, *, h=None, q=None, s=None):
+  def __init__(
+      self, E: float, nu: float, r: float, *, h: float | None = None,
+      q: float | None = None, s: float | None = None):
     r"""
     Args:
       E: Young's modulus
@@ -137,11 +143,14 @@ class tube:
     self.E = E
     self.nu = nu
     self.r = r
+
+    if (h or q or s):
+      pass
     self.h = h
     self.s = s
     self.q = q
 
-  def buckling_force(self):
+  def force(self) -> float:
     r"""Critical buckling value of the compressive force.
 
     A long circular tube uniformly compressed by external pressure.
@@ -155,9 +164,11 @@ class tube:
         Stability. 2nd ed. New York: McGraw-Hill Book. p. 289.
 
     """
+    if self.h is None:
+      raise ValueError("h is not defined.")
     return (self.E * self.h**3) / (4 * (1 - self.nu**2) * self.r**2)
 
-  def buckling_pressure(self):
+  def pressure(self) -> float:
     r"""Critical buckling value of the compressive pressure.
 
     A long circular tube uniformly compressed by external pressure.
@@ -175,9 +186,11 @@ class tube:
         Stability. 2nd ed. New York: McGraw-Hill Book. p. 289.
 
     """
+    if self.h is None:
+      raise ValueError("h is not defined.")
     return self.E / (4 * (1 - self.nu**2)) * (self.h / self.r)**3
 
-  def buckling_stress(self):
+  def stress(self) -> float:
     r"""Critical buckling stress of a long thin circular tube uniformly
     compressed by pressure.
 
@@ -194,36 +207,153 @@ class tube:
         Stability. 2nd ed. New York: McGraw-Hill Book. p. 293.
 
     """
+    if self.h is None:
+      raise ValueError("h is not defined.")
     return self.E / (1 - self.nu**2) * (self.h / (2 * self.r))**2
 
-  def buckling_thickness(self) -> float|None:
+  def thickness(self) -> float | None:
     r"""Critical buckling thickness of a long thin circular tube uniformly
     compressed by external pressure.
 
     Returns:
       - Thickness regarding the internal stress, if stress is given
-
-        .. math::
-
-          h_{\text{cr,}\sigma} = \sqrt{\sigma_\text{cr} \frac{1 - \nu^2}{E}} {2r}
-
       - Thickness regarding the external pressure, if pressure is given
+      - Otherwise given thickness
+      - Or None
 
-        .. math::
+    See also:
+      :py:meth:`buckling_thickness_pressure` and
+      :py:meth:`buckling_thickness_stress`
 
-          h_\text{cr,q} = \left(q_\text{cr} \, 4 \frac{1 - \nu^2}{E}\right)^\frac{1}{3} {r}
+    """
+    if self.s is not None:
+      return self.thickness_stress()
+    if self.q is not None:
+      return self.thickness_pressure()
+    if self.h is not None:
+      return self.h
+    return None
 
-      - Otherwise given thickness or None
+  def thickness_pressure(self) -> float:
+    r"""Critical buckling thickness of a long thin circular tube uniformly
+    compressed by external pressure.
+
+    Thickness regarding the external pressure
+
+    .. math::
+
+      h_\text{cr,q} = \left(q_\text{cr} \, 4
+      \frac{1 - \nu^2}{E}\right)^\frac{1}{3} {r}
 
     References:
       - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
         Stability. 2nd ed. New York: McGraw-Hill Book. p. 293.
 
     """
-    if self.scr is not None:
-      return np.sqrt(self.s * (1 - self.nu**2) / self.E) * (2 * self.r)
-    if self.qcr is not None:
-      return np.power(self.q * 4 * (1 - self.nu**2) / self.E, 1/3) * self.r
-    if self.h is not None:
-      return self.h
+    if self.q is None:
+      raise ValueError("q is not defined.")
+    return np.power(self.q * 4 * (1 - self.nu**2) / self.E, 1 / 3) * self.r
+
+  def thickness_stress(self) -> float:
+    r"""Critical buckling thickness of a long thin circular tube uniformly
+    compressed by external pressure.
+
+    Thickness regarding the internal stress
+
+    .. math::
+
+      h_{\text{cr,}\sigma} = \sqrt{\sigma_\text{cr} \frac{1 - \nu^2}{E}} {2r}
+
+    References:
+      - Timoshenko, Stephen P., and James M. Gere. 1961. Theory of Elastic
+        Stability. 2nd ed. New York: McGraw-Hill Book. p. 293.
+
+    """
+    if self.s is None:
+      raise ValueError("s is not defined.")
+    return np.sqrt(self.s * (1 - self.nu**2) / self.E) * (2 * self.r)
+
+class Plate:
+  r"""Thin circular plate uniformly loaded with external pressure.
+
+  Important:
+    Can be used as long as the corresponding stress does not exeed the
+    proportional limit of the material.
+
+  References:
+    - Timoshenko, Stephen P., and S. Woinowsky-Krieger. 1959. Theory of Plates
+      and Shells. 2nd ed. New York: McGraw-Hill Book.
+
+  """
+
+  def __init__(self, E: float, nu: float, ra: float, h: float):
+    """
+    Args:
+      E: Elastic modulus / Young's modulus
+      nu: Poisson's ratio
+      ra: radius
+      h: thickness
+
+    """
+    self.E = E
+    self.nu = nu
+    self.ra = ra
+    self.h = h
+
+  @property
+  def D(self) -> float:
+    r"""Flexural rigidity of the plate.
+
+    .. math::
+
+      D = \frac{E\,h^3}{12(1-\nu^2)}
+    """
+    return self.E * self.h**3 / (12 * (1 - self.nu**2))
+
+  def deflection(self, q, support: str = 'clamped') -> float | None:
+    r"""Central deflection of a clamped supported circular plate.
+
+    Args:
+      q: external pressure
+      support: clamped, simple
+
+    See also:
+      :py:meth:`deflection_clamped` and :py:meth:`deflection_simple`
+    """
+    if support == 'clamped':
+      return self.deflection_clamped(q)
+    elif support == 'simple':
+      return self.deflection_simple(q)
     return None
+
+  def deflection_clamped(self, q) -> float:
+    r"""Central deflection of a clamped supported circular plate.
+
+    Args:
+      q: external pressure
+
+    .. math::
+
+      w_\text{max} = \frac{q \, r_\text{a}^4}{64D}
+
+    References:
+      - Timoshenko, Stephen P., and S. Woinowsky-Krieger. 1959. Theory of Plates
+        and Shells. 2nd ed. New York: McGraw-Hill Book. p. 55.
+    """
+    return q * self.ra**4 / (64 * self.D)
+
+  def deflection_simple(self, q) -> float:
+    r"""Central deflection of a simple/pinned supported circular plate.
+
+    Args:
+      q: external pressure
+
+    .. math::
+
+      w_\text{max} = \frac{q \, r_\text{a}^4}{64D} \frac{5+\nu}{1+\nu}
+
+    References:
+      - Timoshenko, Stephen P., and S. Woinowsky-Krieger. 1959. Theory of Plates
+        and Shells. 2nd ed. New York: McGraw-Hill Book. p. 57.
+    """
+    return q * self.ra**4 / (64 * self.D) * (5 + self.nu) / (1 + self.nu)
