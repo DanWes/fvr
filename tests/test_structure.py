@@ -1,53 +1,44 @@
 """Test of structure module.
 
 """
-import unittest
+import pytest
 import fvr.structure
 
-class TestStructureBeam(unittest.TestCase):
-  def setUp(self):
+class TestBeam:
+  @pytest.fixture(autouse=True)
+  def obj(self):
     self.obj = fvr.structure.Beam(1, 2, 3, 4, 5)
 
-  def test_volume(self):
-    self.assertEqual(self.obj.V, 12, 'incorrect volume after creation')
+  def test_beam_volume(self):
+    assert self.obj.V == 12
 
   def test_volume_a(self):
     self.obj.A = 6
-    self.assertEqual(self.obj.V, 24, 'incorrect volume after changing A')
+    assert self.obj.V == 24
 
   def test_volume_l(self):
     self.obj.L = 7
-    self.assertEqual(self.obj.V, 21, 'incorrect volume after changing L')
+    assert self.obj.V == 21
 
   def test_mu(self):
-    self.assertEqual(self.obj.mu, 15, 'incorrect specific mass after creation')
+    assert self.obj.mu == 15
 
   def test_m(self):
-    self.assertEqual(self.obj.m, 60, 'incorrect mass after creation')
+    assert self.obj.m == 60
 
   def test_eigenfrequency(self):
-    self.assertEqual(
-      self.obj.eigenfrequency(1), 0.012770856732837836,
-      'incorrect eigen-frequency after creation')
+    assert self.obj.eigenfrequency(1) == 0.012770856732837836
 
-class TestStructureTubeBuckling(unittest.TestCase):
-  def setUp(self):
+class TestTubeBuckling:
+  @pytest.fixture(autouse=True)
+  def obj(self):
     self.obj = fvr.structure.TubeBuckling(1, 0.2, 3, h=4)
 
   def test_force(self):
-    self.assertEqual(
-      self.obj.force(), 1.8518518518518516,
-      'incorrect buckling force after creation')
+    assert self.obj.force() == 1.8518518518518516
 
   def test_pressure(self):
-    self.assertEqual(
-      self.obj.pressure(), 0.6172839506172838,
-      'incorrect buckling force after creation')
+    assert self.obj.pressure() == 0.6172839506172838
 
   def test_stress(self):
-    self.assertEqual(
-      self.obj.stress(), 0.46296296296296297,
-      'incorrect buckling force after creation')
-
-if __name__ == '__main__':
-  unittest.main()
+    assert self.obj.stress() == 0.46296296296296297

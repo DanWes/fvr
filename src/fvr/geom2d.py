@@ -5,8 +5,9 @@ from fvr.typing import FloatArray
 class Vertex(np.ndarray):
   """Point in 2d space using homogeneous coordinates."""
 
-  def __init__(cls, x=0, y=0):
+  def __new__(cls, x=0, y=0):
     obj = np.asarray([x, y, 1]).view(cls)
+    return obj
 
   @property
   def x(self):
@@ -16,12 +17,16 @@ class Vertex(np.ndarray):
   def y(self):
     return self[1]
 
+  @property
+  def w(self):
+    return self[2]
+
 
 class Polygon:
   r"""Properties of a simple polygon.
   """
 
-  def __init__(self, vertices: FloatArray|str):
+  def __init__(self, vertices: FloatArray | str):
     r"""
     Args:
       vertices: List of points, pair of x and y: ``[[x1, y1], [x2, y2], ...]``
@@ -31,19 +36,20 @@ class Polygon:
     self.vertices = vertices
 
   @staticmethod
-  def str2arr(vertices: str) -> list:
+  def str2arr(vertices: str) -> FloatArray:
     strm = re.match(r'\[.*\]', ''.join(vertices))
     if strm and strm.group():
       return eval(strm.group())
+    return np.array([])
 
   @property
   def area(self) -> float:
     r"""Determine the area of a simple polygon.
 
     Example:
-      >>> polygon([[0, 0], [0, 1], [1, 1], [1, 0]]).area
+      >>> Polygon([[0, 0], [0, 1], [1, 1], [1, 0]]).area
       1.0
-      >>> polygon('[[0, 0], [0, 1], [1, 1], [1, 0]]').area
+      >>> Polygon('[[0, 0], [0, 1], [1, 1], [1, 0]]').area
       1.0
 
     Shoelace formula, Gauss's area formula, surveyor's formula
