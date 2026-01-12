@@ -1,7 +1,23 @@
 import re
+import numpy as np
 from fvr.typing import FloatArray
 
-class polygon:
+class Vertex(np.ndarray):
+  """Point in 2d space using homogeneous coordinates."""
+
+  def __init__(cls, x=0, y=0):
+    obj = np.asarray([x, y, 1]).view(cls)
+
+  @property
+  def x(self):
+    return self[0]
+
+  @property
+  def y(self):
+    return self[1]
+
+
+class Polygon:
   r"""Properties of a simple polygon.
   """
 
